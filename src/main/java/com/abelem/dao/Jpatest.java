@@ -1,5 +1,7 @@
 package com.abelem.dao;
 
+import com.abelem.bidirectional.onetoone.entity.Address;
+import com.abelem.bidirectional.onetoone.entity.Person;
 import com.abelem.elementcollection.entity.Vehicule;
 import com.abelem.onetomany.entity.Marque;
 import com.abelem.onetomany.entity.Modele;
@@ -22,17 +24,62 @@ public class Jpatest {
 
         em.getTransaction().begin();
 
-        remplirEmployees();
-        remplirManufacturers();
-        remplirMarquesModeles();
+//        remplirEmployees();
+//        remplirManufacturers();
+//        remplirMarquesModeles();
+//        remplirVehicule();
 
-        remplirVehicule();
+        testBidirectionalRelationship();
 
         em.getTransaction().commit();
 
 
+        em.getTransaction().begin();
+
+        Person pFound = findPersonById(1L);
+        Address aFound = findAddressById(1L);
+
+        em.getTransaction().commit();
+
+        System.out.println("Person found.: " + pFound);
+        System.out.println("Address found.: " + aFound);
+
+        System.out.println("pFound.getAddress().: "+ pFound.getAddress());
+        System.out.println("aFound.getPerson().: " + aFound.getPerson());
+
+
         /* vai deletar manufacturer e manufacturerDetails*/
         // deleteManufacturerDetails(1);
+    }
+
+    public static Person findPersonById(Long id){
+        return em.find(Person.class, 1L);
+    }
+
+    public static Address findAddressById(Long id){
+        return em.find(Address.class, 1L);
+    }
+
+    public static void testBidirectionalRelationship() {
+        Address address = createAddress(1L, "Av. das Nações nr 192");
+        createPerson(1L, "Alexandre", address );
+
+    }
+
+    public static void createPerson(Long id, String name, Address address){
+        Person p = new Person();
+        p.setId(id);
+        p.setName(name);
+        p.setAddress(address); // erro?? object references an unsaved transient instance - save the transient instance before
+        em.persist(p);
+    }
+
+    public static Address createAddress(Long id, String street){
+        Address a = new Address();
+        a.setId(id);
+        a.setStreet(street);
+        em.persist(a);
+        return a;
     }
 
     public static void remplirEmployees(){
